@@ -9,7 +9,7 @@
         <el-button type="primary" @click="showDialog = false">确定</el-button>
       </span>
     </el-dialog>
-    <el-form :hide-required-asterisk="true" :model="speedrun" :ref="speedrun" :rules="rules" label-position="top">
+    <el-form :hide-required-asterisk="true" :model="speedrun" :data="speedrun" :rules="rules" label-position="top">
       <el-form-item label="游戏范围">
         <el-select v-model="speedrun.level" style="width: 100%">
           <el-option v-for="level in levels" :key="level" :label="level" :value="level" />
