@@ -40,14 +40,14 @@
       <el-table-column label="名称" min-width="205px">
         <template v-slot="scope">
           <el-popover class="popover" v-if="scope.row.preview != ''" placement="top-start" trigger="hover"
-            :width="previewWidth">
+            :width="previewWidth" @show="setPreview(scope.row)">
             <template #reference>
               <el-button class="link" link type="primary">
                 {{ scope.row.name }}
               </el-button>
             </template>
             <template #default>
-              <el-image class="image" :src="scope.row.preview" fit="fill" />
+              <el-image class="image" :src="previewMap[scope.row.name]" fit="fill" lazy/>
             </template>
           </el-popover>
           <a v-else>{{ scope.row.name }}</a>
@@ -76,7 +76,7 @@
 </template>
 
 <script lang="ts" setup>
-import { inject, computed, onMounted, ref } from 'vue';
+import { inject, computed, onMounted, ref, reactive } from 'vue';
 import LeanCloudQuery from '../../services/leancloud/leanCloudQuery';
 import LeanCloudService from '../../services/leancloud/leanCloudService';
 import Map from '../../models/map';
@@ -91,6 +91,7 @@ const difficulty = ref('不限');
 const difficulties: string[] = ["不限", "简单", "中等", "困难", "极难", "地狱"];
 const platform = ref('PC');
 const platforms: string[] = ["PC", "安卓"];
+const previewMap = reactive<{ [key: string]: string }>({});
 let isLoading = ref(false);
 const previewWidth = computed(() => { return window.innerWidth * 0.5; });
 let filteredMaps = computed<Map[]>(() => {
@@ -113,10 +114,12 @@ const getMaps = async () => {
     .orderByAscending("name")
     .select("name", "author", "size", "form", "style", "difficulty", "platform", "url", "preview");
   maps.value = await leanCloudService.find(query);
-  maps.value.forEach(map => {
-    if (map.preview) map.preview = `${map.preview}?imageView/2/w/768/h/432/q/40`;
-  });
 };
+const setPreview = (map: Map): void => {
+  if(!previewMap[map.name]){
+    previewMap[map.name] = `${map.preview}?imageView/2/w/768/h/432/q/40`;
+  }
+}
 </script>
 
 <style scoped>
